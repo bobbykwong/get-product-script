@@ -17,23 +17,54 @@ merchant_api = API(
 )
 */
 
+let productNames = [];
+const file = './newMasterList.json'
 const getAllProducts = () => {
+    let nextPage = true;
+    let lastPage = true;
+    let pageNum = 1
     
-    axios.get(`https://gaigai.com/wp-json/wc/v3/products?consumer_key=${merchant_consumer_key}&consumer_secret=${merchant_consumer_secret}&per_page=100`, {
+    const callEndpoint = (pageNumber) => {
+        axios.get("https://gaigai.com/wp-json/wc/v3/products", {
+            params: {
+                page: pageNumber,
+                per_page: "100",
+                consumer_key: "ck_20d4c499f10909d53015ce28f0ab657b60e8488c",
+                consumer_secret: "cs_487070c9bad8d1f1f2856c4aeddbc663bb53fe61"
+                }    
+        })
+            .then(response => {
+                nextPage = response["headers"]["link"].includes("next");
+                lastPage = response["headers"]["link"].includes("last");
     
-    })
-        .then(response => {
-            console.log(response["headers"]["link"]);
-            const productArray = response["data"];
-            productNames = [];
-            productArray.forEach(e => {
-                productNames.push(e["name"])
-            });
-            // console.log(productNames);
-        })
-        .catch(err => {
-            console.log(err)
-        })
+                const productArray = response["data"];
+                console.log(productArray.length)
+                
+                productArray.forEach(e => {
+                    productNames.push(e["name"])
+                });
+
+                const obj = {pageNumber: productNames}
+
+                jsonfile.writeFile(file, obj)
+                    .then(res => {
+                        console.log('page complete')
+                        if(nextPage || lastPage){
+                            callEndpoint(pageNumber+1)
+                        }
+                    })
+                    .catch(err => {
+                        console.log(err)
+                    })
+                
+            })
+            .catch(err => {
+                console.log(err)
+                return;
+            })
+    }
+
+    callEndpoint(pageNum);
 
 }
 
