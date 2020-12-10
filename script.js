@@ -100,6 +100,7 @@ jsonfile.readFile(newMasterList)
         merchantProductList.forEach(element => {
             const id = element["id"] 
             const price = element["Selling Price"].toString()
+            
             let name = element["Name"].split(" ")
             name.push(price);
             name.push(id);
@@ -141,6 +142,7 @@ jsonfile.readFile(newMasterList)
             
             if(optionsArray.length > 0){
                 optionsArray.push(productNamesArrayMerchant[indexMer][productNamesArrayMerchant[indexMer].length - 1])
+                optionsArray.push(productNamesArrayMerchant[indexMer][productNamesArrayMerchant[indexMer].length - 2])
                 results.push(optionsArray)
             }
         }
